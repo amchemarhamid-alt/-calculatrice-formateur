@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Calculatrice professionnelle pour formateurs - Correction de copies simplifiée"
+    />
+    <meta name="theme-color" content="#667eea" />
+
+    <title>Calculatrice du Formateur Pro</title>
+
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json" />
+    <link rel="apple-touch-icon" href="icon-192.png" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --primary: #667eea;
+        --primary-dark: #5568d3;
+        --secondary: #764ba2;
+        --success: #10b981;
+        --warning: #fbbf24;
+        --danger: #ef4444;
+        --dark: #1e293b;
+        --gray: #64748b;
+        --light-gray: #f8fafc;
+        --border: #e2e8f0;
+
+        --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        --shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      [data-theme="dark"] {
+        --light-gray: #1e293b;
+        --dark: #f8fafc;
+        --gray: #94a3b8;
+        --border: #334155;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Inter", sans-serif;
+        background: var(--bg-gradient);
+        min-height: 100vh;
+        padding: 20px;
+        transition: background 0.3s ease;
+      }
+
+      body[data-theme="dark"] {
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      }
+
+      .top-bar {
+        max-width: 1200px;
+        margin: 0 auto 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px 20px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+      }
+
+      .top-bar h1 {
+        color: white;
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .top-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      .icon-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 18px;
+        transition: all 0.2s;
+      }
+
+      .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
+
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 350px;
+        gap: 20px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .main-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: var(--shadow);
+        transition: background 0.3s ease;
+      }
+
+      [data-theme="dark"] .card {
+        background: #1e293b;
+        color: #f8fafc;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 25px;
+      }
+
+      .header h2 {
+        color: var(--primary);
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .header p {
+        color: var(--gray);
+        font-size: 14px;
+      }
+
+      .display {
+        background: linear-gradient(
+          135deg,
+          var(--light-gray) 0%,
+          var(--border) 100%
+        );
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 25px;
+        min-height: 120px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .expression {
+        color: var(--gray);
+        font-size: 18px;
+        min-height: 30px;
+        word-wrap: break-word;
+      }
+
+      .result {
+        color: var(--dark);
+        font-size: 42px;
+        font-weight: 700;
+        text-align: right;
+        margin-top: 10px;
+      }
+
+      /* Onglets pour modes */
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+        background: var(--light-gray);
+        padding: 5px;
+        border-radius: 12px;
+      }
+
+      .tab {
+        flex: 1;
+        padding: 12px 20px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        color: var(--gray);
+      }
+
+      .tab.active {
+        background: white;
+        color: var(--primary);
+        box-shadow: var(--shadow-sm);
+      }
+
+      [data-theme="dark"] .tab.active {
+        background: #334155;
+      }
+
+      .tab-content {
+        display: none;
+      }
+
+      .tab-content.active {
+        display: block;
+      }
+
+      .buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+      }
+
+      button {
+        border: none;
+        border-radius: 12px;
+        padding: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: "Inter", sans-serif;
+        box-shadow: var(--shadow-sm);
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      .btn-number {
+        background: var(--light-gray);
+        color: var(--dark);
+      }
+
+      .btn-number:hover {
+        background: var(--border);
+      }
+
+      .btn-operator {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-operator:hover {
+        background: var(--primary-dark);
+      }
+
+      .btn-decimal {
+        background: var(--warning);
+        color: white;
+      }
+
+      .btn-special {
+        background: var(--success);
+        color: white;
+      }
+
+      .btn-clear {
+        background: var(--danger);
+        color: white;
+      }
+
+      .btn-equals {
+        background: #8b5cf6;
+        color: white;
+      }
+
+      .btn-wide {
+        grid-column: span 2;
+      }
+
+      /* Panel Moyenne */
+      .input-group {
+        margin-bottom: 15px;
+      }
+
+      .input-group label {
+        display: block;
+        color: var(--gray);
+        font-size: 14px;
+        margin-bottom: 5px;
+        font-weight: 500;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid var(--border);
+        border-radius: 10px;
+        font-size: 16px;
+        font-family: "Inter", sans-serif;
+        transition: border 0.2s;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: var(--primary);
+      }
+
+      .notes-list {
+        max-height: 250px;
+        overflow-y: auto;
+        margin-bottom: 15px;
+      }
+
+      .note-item {
+        background: var(--light-gray);
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .note-info {
+        flex: 1;
+      }
+
+      .note-value {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 18px;
+      }
+
+      .note-coef {
+        font-size: 12px;
+        color: var(--gray);
+      }
+
+      .btn-delete {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-top: 20px;
+      }
+
+      .stat-card {
+        background: var(--light-gray);
+        padding: 15px;
+        border-radius: 12px;
+        text-align: center;
+      }
+
+      .stat-label {
+        font-size: 12px;
+        color: var(--gray);
+        margin-bottom: 5px;
+      }
+
+      .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--primary);
+      }
+
+      /* Sidebar */
+      .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .history-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: var(--shadow);
+        max-height: 500px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      [data-theme="dark"] .history-panel {
+        background: #1e293b;
+      }
+
+      .history-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .history-header h2 {
+        color: var(--primary);
+        font-size: 20px;
+        font-weight: 700;
+      }
+
+      .btn-clear-history {
+        background: var(--danger);
+        color: white;
+        padding: 8px 16px;
+        font-size: 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+      }
+
+      .history-list {
+        overflow-y: auto;
+        flex: 1;
+      }
+
+      .history-item {
+        background: var(--light-gray);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+        border-left: 4px solid var(--primary);
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      .history-item:hover {
+        transform: translateX(5px);
+      }
+
+      .history-expression {
+        color: var(--gray);
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+
+      .history-result {
+        color: var(--dark);
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .empty-history {
+        text-align: center;
+        color: var(--gray);
+        padding: 40px 20px;
+        font-size: 14px;
+      }
+
+      /* Convertisseur */
+      .converter {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: var(--shadow);
+      }
+
+      [data-theme="dark"] .converter {
+        background: #1e293b;
+      }
+
+      .converter h3 {
+        color: var(--primary);
+        font-size: 18px;
+        margin-bottom: 15px;
+      }
+
+      .conversion-result {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        color: white;
+        padding: 20px;
+        border-radius: 12px;
+        text-align: center;
+        margin-top: 15px;
+      }
+
+      .conversion-value {
+        font-size: 32px;
+        font-weight: 700;
+      }
+
+      .conversion-label {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      @media (max-width: 968px) {
+        .container {
+          grid-template-columns: 1fr;
+        }
+
+        .top-bar h1 {
+          font-size: 16px;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 500px) {
+        .card {
+          padding: 20px;
+        }
+
+        .buttons {
+          gap: 8px;
+        }
+
+        button {
+          padding: 15px;
+          font-size: 16px;
+        }
+
+        .result {
+          font-size: 32px;
+        }
+      }
+
+      /* Scrollbar personnalisée */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: var(--light-gray);
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: var(--primary);
+        border-radius: 10px;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .card {
+        animation: fadeIn 0.5s ease;
+      }
+    </style>
+  </head>
+  <!-- Service Worker Registration -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .register("./sw.js")
+          .then((registration) => {
+            console.log("✅ Service Worker enregistré:", registration.scope);
+          })
+          .catch((error) => {
+            console.log("❌ Erreur Service Worker:", error);
+          });
+      });
+    }
+
+    // Détection de l'installation PWA
+    let deferredPrompt;
+    window.addEventListener("beforeinstallprompt", (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+
+      // Afficher un bouton d'installation personnalisé (optionnel)
+      console.log("💡 PWA installable !");
+    });
+
+    // Détecter quand l'app est installée
+    window.addEventListener("appinstalled", () => {
+      console.log("🎉 Application installée avec succès !");
+      deferredPrompt = null;
+    });
+  </script>
+  <body>
+    <!-- Barre supérieure -->
+    <div class="top-bar">
+      <h1>🎓 Calculatrice du Formateur Pro - By A H</h1>
+      <div class="top-controls">
+        <button class="icon-btn" onclick="toggleTheme()" title="Mode sombre">
+          🌙
+        </button>
+        <button
+          class="icon-btn"
+          onclick="exportData()"
+          title="Exporter les données"
+        >
+          📥
+        </button>
+        <button class="icon-btn" onclick="showHelp()" title="Aide">❓</button>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Section principale -->
+      <div class="main-section">
+        <!-- Calculatrice -->
+        <div class="card">
+          <div class="tabs">
+            <button class="tab active" onclick="switchTab('calculator')">
+              🧮 Calculatrice
+            </button>
+            <button class="tab" onclick="switchTab('average')">
+              📊 Moyennes
+            </button>
+          </div>
+
+          <!-- Mode Calculatrice -->
+          <div id="calculator-tab" class="tab-content active">
+            <div class="display">
+              <div class="expression" id="expression"></div>
+              <div class="result" id="result">0</div>
+            </div>
+
+            <div class="buttons">
+              <!-- Ligne 1: Décimaux spéciaux -->
+              <button class="btn-decimal" onclick="appendNumber('0.25')">
+                0.25
+              </button>
+              <button class="btn-decimal" onclick="appendNumber('0.5')">
+                0.5
+              </button>
+              <button class="btn-decimal" onclick="appendNumber('0.75')">
+                0.75
+              </button>
+              <button class="btn-clear" onclick="clearAll()">C</button>
+
+              <!-- Ligne 2: 7 8 9 ÷ -->
+              <button class="btn-number" onclick="appendNumber('7')">7</button>
+              <button class="btn-number" onclick="appendNumber('8')">8</button>
+              <button class="btn-number" onclick="appendNumber('9')">9</button>
+              <button class="btn-operator" onclick="appendOperator('÷')">
+                ÷
+              </button>
+
+              <!-- Ligne 3: 4 5 6 × -->
+              <button class="btn-number" onclick="appendNumber('4')">4</button>
+              <button class="btn-number" onclick="appendNumber('5')">5</button>
+              <button class="btn-number" onclick="appendNumber('6')">6</button>
+              <button class="btn-operator" onclick="appendOperator('×')">
+                ×
+              </button>
+
+              <!-- Ligne 4: 1 2 3 - -->
+              <button class="btn-number" onclick="appendNumber('1')">1</button>
+              <button class="btn-number" onclick="appendNumber('2')">2</button>
+              <button class="btn-number" onclick="appendNumber('3')">3</button>
+              <button class="btn-operator" onclick="appendOperator('-')">
+                -
+              </button>
+
+              <!-- Ligne 5: 0 . + Σ -->
+              <button class="btn-number" onclick="appendNumber('0')">0</button>
+              <button class="btn-number" onclick="appendNumber('.')">.</button>
+              <button class="btn-operator" onclick="appendOperator('+')">
+                +
+              </button>
+              <button class="btn-special" onclick="sumMode()">Σ</button>
+
+              <!-- Ligne 6: Boutons spéciaux -->
+              <button class="btn-special" onclick="backspace()">
+                ← Retour
+              </button>
+              <button class="btn-equals btn-wide" onclick="calculate()">
+                =
+              </button>
+            </div>
+          </div>
+
+          <!-- Mode Moyennes -->
+          <div id="average-tab" class="tab-content">
+            <div class="input-group">
+              <label>Note obtenue</label>
+              <input
+                type="number"
+                id="noteValue"
+                placeholder="Ex: 15"
+                step="0.25"
+              />
+            </div>
+
+            <div class="input-group">
+              <label>Note maximale (barème)</label>
+              <input
+                type="number"
+                id="noteMax"
+                placeholder="Ex: 20"
+                value="20"
+              />
+            </div>
+
+            <div class="input-group">
+              <label>Coefficient (optionnel)</label>
+              <input
+                type="number"
+                id="noteCoef"
+                placeholder="Ex: 2"
+                value="1"
+                step="0.5"
+              />
+            </div>
+
+            <button
+              class="btn-special"
+              style="width: 100%; margin-bottom: 20px"
+              onclick="addNote()"
+            >
+              ➕ Ajouter la note
+            </button>
+
+            <div class="notes-list" id="notesList"></div>
+
+            <div class="stats-grid" id="statsGrid" style="display: none">
+              <div class="stat-card">
+                <div class="stat-label">Moyenne</div>
+                <div class="stat-value" id="avgMean">-</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Total</div>
+                <div class="stat-value" id="avgTotal">-</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Nombre</div>
+                <div class="stat-value" id="avgCount">-</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Min / Max</div>
+                <div class="stat-value" id="avgMinMax">-</div>
+              </div>
+            </div>
+
+            <button
+              class="btn-clear"
+              style="width: 100%; margin-top: 15px"
+              onclick="clearNotes()"
+            >
+              🗑️ Tout effacer
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Historique -->
+        <div class="history-panel">
+          <div class="history-header">
+            <h2>📋 Historique</h2>
+            <button class="btn-clear-history" onclick="clearHistory()">
+              Effacer
+            </button>
+          </div>
+          <div class="history-list" id="historyList">
+            <div class="empty-history">Aucun calcul effectué</div>
+          </div>
+        </div>
+
+        <!-- Convertisseur -->
+        <div class="converter">
+          <h3>🔄 Convertisseur de notes</h3>
+
+          <div class="input-group">
+            <label>Note à convertir</label>
+            <input
+              type="number"
+              id="convertValue"
+              placeholder="Ex: 15"
+              step="0.25"
+              oninput="convertNote()"
+            />
+          </div>
+
+          <div class="input-group">
+            <label>Sur combien ?</label>
+            <input
+              type="number"
+              id="convertMax"
+              placeholder="Ex: 20"
+              value="20"
+              oninput="convertNote()"
+            />
+          </div>
+
+          <div
+            class="conversion-result"
+            id="conversionResult"
+            style="display: none"
+          >
+            <div class="conversion-label">Sur 100</div>
+            <div class="conversion-value" id="conv100">-</div>
+            <div class="conversion-label">
+              Pourcentage : <span id="convPercent">-</span>%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // =============================================
+      // VARIABLES GLOBALES
+      // =============================================
+      let currentExpression = "";
+      let currentResult = "0";
+      let history = [];
+      let sumModeActive = false;
+      let sumValues = [];
+      let notes = [];
+
+      // =============================================
+      // ÉLÉMENTS DOM
+      // =============================================
+      const expressionDisplay = document.getElementById("expression");
+      const resultDisplay = document.getElementById("result");
+      const historyList = document.getElementById("historyList");
+
+      // =============================================
+      // CALCULATRICE - FONCTIONS DE BASE
+      // =============================================
+
+      function appendNumber(num) {
+        if (sumModeActive) {
+          sumValues.push(parseFloat(num));
+          updateSumDisplay();
+        } else {
+          if (currentExpression === "" && currentResult !== "0") {
+            currentExpression = currentResult;
+          }
+          currentExpression += num;
+          updateDisplay();
+        }
+      }
+
+      function appendOperator(op) {
+        if (sumModeActive) {
+          sumModeActive = false;
+          calculate();
+        }
+
+        if (currentExpression === "" && currentResult !== "0") {
+          currentExpression = currentResult;
+        }
+
+        const lastChar = currentExpression.slice(-1);
+        if (["+", "-", "×", "÷"].includes(lastChar)) {
+          currentExpression = currentExpression.slice(0, -1);
+        }
+
+        currentExpression += " " + op + " ";
+        updateDisplay();
+      }
+
+      function sumMode() {
+        sumModeActive = true;
+        sumValues = [];
+        currentExpression = "Mode SOMME actif";
+        currentResult = "0";
+        updateDisplay();
+      }
+
+      function updateSumDisplay() {
+        currentExpression = "SOMME: " + sumValues.join(" + ");
+        const sum = sumValues.reduce((a, b) => a + b, 0);
+        currentResult = sum.toFixed(2).replace(/\.?0+$/, "");
+        updateDisplay();
+      }
+
+      function calculate() {
+        if (sumModeActive) {
+          if (sumValues.length > 0) {
+            const sum = sumValues.reduce((a, b) => a + b, 0);
+            const expression = sumValues.join(" + ");
+            addToHistory(expression, sum);
+            currentResult = sum.toFixed(2).replace(/\.?0+$/, "");
+            currentExpression = "";
+            sumModeActive = false;
+            sumValues = [];
+          }
+        } else {
+          if (currentExpression === "") return;
+
+          try {
+            let expr = currentExpression.replace(/×/g, "*").replace(/÷/g, "/");
+            const result = eval(expr);
+            addToHistory(currentExpression, result);
+            currentResult = result.toFixed(2).replace(/\.?0+$/, "");
+            currentExpression = "";
+          } catch (error) {
+            currentResult = "Erreur";
+          }
+        }
+        updateDisplay();
+        saveToLocalStorage();
+      }
+
+      function clearAll() {
+        currentExpression = "";
+        currentResult = "0";
+        sumModeActive = false;
+        sumValues = [];
+        updateDisplay();
+      }
+
+      function backspace() {
+        if (sumModeActive) {
+          if (sumValues.length > 0) {
+            sumValues.pop();
+            if (sumValues.length === 0) {
+              sumModeActive = false;
+              currentExpression = "";
+              currentResult = "0";
+            } else {
+              updateSumDisplay();
+            }
+          }
+        } else {
+          currentExpression = currentExpression.trim();
+          if (currentExpression.length > 0) {
+            const lastThree = currentExpression.slice(-3);
+            if (
+              [" + ", " - ", " × ", " ÷ "].some((op) =>
+                lastThree.endsWith(op.trim())
+              )
+            ) {
+              currentExpression = currentExpression.slice(0, -3);
+            } else {
+              currentExpression = currentExpression.slice(0, -1);
+            }
+          }
+        }
+        updateDisplay();
+      }
+
+      function updateDisplay() {
+        expressionDisplay.textContent = currentExpression || " ";
+        resultDisplay.textContent = currentResult;
+      }
+
+      // =============================================
+      // HISTORIQUE
+      // =============================================
+
+      function addToHistory(expression, result) {
+        const formattedResult = parseFloat(result.toFixed(2));
+        history.unshift({
+          expression: expression,
+          result: formattedResult,
+          timestamp: new Date().toLocaleString("fr-FR"),
+        });
+
+        if (history.length > 50) {
+          history.pop();
+        }
+
+        renderHistory();
+        saveToLocalStorage();
+      }
+
+      function renderHistory() {
+        if (history.length === 0) {
+          historyList.innerHTML =
+            '<div class="empty-history">Aucun calcul effectué</div>';
+          return;
+        }
+
+        historyList.innerHTML = history
+          .map(
+            (item, index) => `
+          <div class="history-item" onclick="reuseCalculation(${index})">
+            <div class="history-expression">${item.expression}</div>
+            <div class="history-result">= ${item.result}</div>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      function reuseCalculation(index) {
+        const item = history[index];
+        currentResult = item.result.toString();
+        updateDisplay();
+      }
+
+      function clearHistory() {
+        if (confirm("Voulez-vous vraiment effacer tout l'historique ?")) {
+          history = [];
+          renderHistory();
+          saveToLocalStorage();
+        }
+      }
+
+      // =============================================
+      // MODE MOYENNES
+      // =============================================
+
+      function addNote() {
+        const value = parseFloat(document.getElementById("noteValue").value);
+        const max = parseFloat(document.getElementById("noteMax").value);
+        const coef = parseFloat(document.getElementById("noteCoef").value) || 1;
+
+        if (isNaN(value) || isNaN(max) || max === 0) {
+          alert("Veuillez entrer des valeurs valides !");
+          return;
+        }
+
+        if (value > max) {
+          alert("La note ne peut pas être supérieure au maximum !");
+          return;
+        }
+
+        const normalizedNote = (value / max) * 20; // Normaliser sur 20
+
+        notes.push({
+          value: value,
+          max: max,
+          coef: coef,
+          normalized: normalizedNote,
+        });
+
+        renderNotes();
+        calculateStats();
+
+        // Réinitialiser le formulaire
+        document.getElementById("noteValue").value = "";
+        document.getElementById("noteValue").focus();
+
+        saveToLocalStorage();
+      }
+
+      function renderNotes() {
+        const notesList = document.getElementById("notesList");
+
+        if (notes.length === 0) {
+          notesList.innerHTML =
+            '<div class="empty-history">Aucune note ajoutée</div>';
+          return;
+        }
+
+        notesList.innerHTML = notes
+          .map(
+            (note, index) => `
+          <div class="note-item">
+            <div class="note-info">
+              <div class="note-value">${note.value}/${note.max}</div>
+              <div class="note-coef">Coef: ${
+                note.coef
+              } | Sur 20: ${note.normalized.toFixed(2)}</div>
+            </div>
+            <button class="btn-delete" onclick="deleteNote(${index})">✕</button>
+          </div>
+        `
+          )
+          .join("");
+      }
+
+      function deleteNote(index) {
+        notes.splice(index, 1);
+        renderNotes();
+        calculateStats();
+        saveToLocalStorage();
+      }
+
+      function calculateStats() {
+        const statsGrid = document.getElementById("statsGrid");
+
+        if (notes.length === 0) {
+          statsGrid.style.display = "none";
+          return;
+        }
+
+        statsGrid.style.display = "grid";
+
+        // Calcul de la moyenne pondérée
+        let totalWeighted = 0;
+        let totalCoef = 0;
+
+        notes.forEach((note) => {
+          totalWeighted += note.normalized * note.coef;
+          totalCoef += note.coef;
+        });
+
+        const moyenne = totalWeighted / totalCoef;
+
+        // Min et Max
+        const values = notes.map((n) => n.normalized);
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+
+        // Mise à jour de l'affichage
+        document.getElementById("avgMean").textContent =
+          moyenne.toFixed(2) + "/20";
+        document.getElementById("avgTotal").textContent =
+          totalWeighted.toFixed(2);
+        document.getElementById("avgCount").textContent = notes.length;
+        document.getElementById("avgMinMax").textContent = `${min.toFixed(
+          1
+        )} / ${max.toFixed(1)}`;
+
+        // Ajouter à l'historique
+        addToHistory(`Moyenne de ${notes.length} notes`, moyenne);
+      }
+
+      function clearNotes() {
+        if (confirm("Voulez-vous vraiment effacer toutes les notes ?")) {
+          notes = [];
+          renderNotes();
+          calculateStats();
+          saveToLocalStorage();
+        }
+      }
+
+      // =============================================
+      // CONVERTISSEUR
+      // =============================================
+
+      function convertNote() {
+        const value = parseFloat(document.getElementById("convertValue").value);
+        const max = parseFloat(document.getElementById("convertMax").value);
+        const resultDiv = document.getElementById("conversionResult");
+
+        if (isNaN(value) || isNaN(max) || max === 0) {
+          resultDiv.style.display = "none";
+          return;
+        }
+
+        const sur100 = (value / max) * 100;
+        const percent = sur100.toFixed(1);
+
+        document.getElementById("conv100").textContent =
+          sur100.toFixed(2) + "/100";
+        document.getElementById("convPercent").textContent = percent;
+
+        resultDiv.style.display = "block";
+      }
+
+      // =============================================
+      // NAVIGATION ONGLETS
+      // =============================================
+
+      function switchTab(tabName) {
+        // Retirer les classes actives
+        document
+          .querySelectorAll(".tab")
+          .forEach((tab) => tab.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((content) => content.classList.remove("active"));
+
+        // Activer l'onglet sélectionné
+        event.target.classList.add("active");
+        document.getElementById(tabName + "-tab").classList.add("active");
+      }
+
+      // =============================================
+      // THÈME SOMBRE
+      // =============================================
+
+      function toggleTheme() {
+        const body = document.body;
+        const currentTheme = body.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        body.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+      }
+
+      // =============================================
+      // EXPORT DE DONNÉES
+      // =============================================
+
+      function exportData() {
+        if (history.length === 0 && notes.length === 0) {
+          alert("Aucune donnée à exporter !");
+          return;
+        }
+
+        let csvContent = "Type;Expression;Résultat;Date\n";
+
+        // Exporter l'historique
+        history.forEach((item) => {
+          csvContent += `Calcul;"${item.expression}";${item.result};${item.timestamp}\n`;
+        });
+
+        // Exporter les notes
+        notes.forEach((note, index) => {
+          csvContent += `Note;${note.value}/${note.max} (Coef ${
+            note.coef
+          });${note.normalized.toFixed(2)};-\n`;
+        });
+
+        // Créer le fichier et télécharger
+        const blob = new Blob([csvContent], {
+          type: "text/csv;charset=utf-8;",
+        });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute("href", url);
+        link.setAttribute(
+          "download",
+          `calculatrice_formateur_${new Date().toISOString().split("T")[0]}.csv`
+        );
+        link.style.visibility = "hidden";
+
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+
+      // =============================================
+      // AIDE
+      // =============================================
+
+      function showHelp() {
+        alert(`🎓 GUIDE D'UTILISATION
+
+📱 CALCULATRICE
+- Utilisez les boutons ou votre clavier
+- Mode SOMME (Σ) : additionner plusieurs notes rapidement
+- Boutons 0.25, 0.5, 0.75 pour les demi-points
+
+📊 MOYENNES
+- Ajoutez des notes avec leur barème et coefficient
+- Calcul automatique de la moyenne pondérée
+- Statistiques complètes (min, max, total)
+
+🔄 CONVERTISSEUR
+- Convertissez une note vers n'importe quel barème
+- Affichage en pourcentage et sur 100
+
+💾 DONNÉES
+- Sauvegarde automatique dans votre navigateur
+- Export CSV pour Excel/Google Sheets
+- Historique conservé
+
+🌙 MODE SOMBRE
+- Cliquez sur l'icône lune en haut à droite
+
+Créé avec ❤️ par A H`);
+      }
+
+      // =============================================
+      // STOCKAGE LOCAL
+      // =============================================
+
+      function saveToLocalStorage() {
+        const data = {
+          history: history,
+          notes: notes,
+          lastUpdate: new Date().toISOString(),
+        };
+        localStorage.setItem("calculatriceFormateur", JSON.stringify(data));
+      }
+
+      function loadFromLocalStorage() {
+        const saved = localStorage.getItem("calculatriceFormateur");
+        if (saved) {
+          try {
+            const data = JSON.parse(saved);
+            history = data.history || [];
+            notes = data.notes || [];
+            renderHistory();
+            renderNotes();
+            calculateStats();
+          } catch (e) {
+            console.error("Erreur de chargement des données", e);
+          }
+        }
+
+        // Charger le thème
+        const savedTheme = localStorage.getItem("theme");
+        if (savedTheme) {
+          document.body.setAttribute("data-theme", savedTheme);
+        }
+      }
+
+      // =============================================
+      // GESTION DU CLAVIER
+      // =============================================
+
+      document.addEventListener("keydown", (e) => {
+        // Ne pas intercepter si on est dans un input
+        if (e.target.tagName === "INPUT") return;
+
+        if (e.key >= "0" && e.key <= "9") {
+          appendNumber(e.key);
+        } else if (e.key === ".") {
+          appendNumber(".");
+        } else if (e.key === "+") {
+          appendOperator("+");
+        } else if (e.key === "-") {
+          appendOperator("-");
+        } else if (e.key === "*") {
+          appendOperator("×");
+        } else if (e.key === "/") {
+          e.preventDefault();
+          appendOperator("÷");
+        } else if (e.key === "Enter" || e.key === "=") {
+          calculate();
+        } else if (e.key === "Escape" || e.key === "c" || e.key === "C") {
+          clearAll();
+        } else if (e.key === "Backspace") {
+          backspace();
+        }
+      });
+
+      // =============================================
+      // INITIALISATION
+      // =============================================
+
+      window.addEventListener("DOMContentLoaded", () => {
+        updateDisplay();
+        loadFromLocalStorage();
+      });
+
+      // Sauvegarder avant de quitter
+      window.addEventListener("beforeunload", () => {
+        saveToLocalStorage();
+      });
+    </script>
+  </body>
+</html>
